@@ -1,0 +1,17 @@
+import axios from 'axios';
+import { useRouter } from 'next/router'
+function Admin() {
+	return (
+		<div className='bg-blue-300 w-screen h-screen'>
+		</div>
+	)
+}
+export const getServerSideProps = async context => {
+	console.log(context)
+	return {
+		props: {
+			text: "hello"
+		}
+	}
+}
+export default Admin;
