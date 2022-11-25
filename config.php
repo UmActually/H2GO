@@ -4,7 +4,7 @@ define('DB_USERNAME', 'bd670e0228877e');
 define('DB_PASSWORD', 'f343723d'); 
 define('DB_NAME'    , 'heroku_fd12f7f7304c66a');
 
-define('POST_DATA_URL', 'https://iot-h2go.herokuapp.com/db-get.php');
+define('POST_DATA_URL', 'https://iot-h2go.herokuapp.com/db-endpoint.php');
 
 //PROJECT_API_KEY is the exact duplicate of, PROJECT_API_KEY in NodeMCU sketch file
 //Both values must be same
