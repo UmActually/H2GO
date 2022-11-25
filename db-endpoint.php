@@ -1,8 +1,13 @@
 <?php 
-
 require 'config.php';
 
+echo "Request received";
+console_log("Request received");
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+	echo "Request is POST";
+	console_log("Request is POST");
+
 	$api_key = escape_data($_POST["api_key"]);
         //print_r($_POST);
         //echo "<br>PROJECT_API_KEY: ".PROJECT_API_KEY."<br>";
@@ -31,3 +36,12 @@ function escape_data($data) {
     $data = htmlspecialchars($data);
     return $data;
 }
+
+function console_log($output, $with_script_tags = true) {
+    $js_code = "console.log(".json_encode($output, JSON_HEX_TAG).");";
+    if ($with_script_tags) {
+        $js_code = "<script>".$js_code. "</script>";
+    }
+    echo $js_code;
+}
+?>

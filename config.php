@@ -22,3 +22,4 @@ if ($db->connect_errno) {
     echo "Connection to database is failed: ".$db->connect_error;
     exit();
 }
+?>
