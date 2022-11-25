@@ -169,13 +169,13 @@ function drawHumidityChart() {
 
 	function refreshData () {
 		$.ajax({
-			url: 'getdata.php',
+			url: 'db-get.php',
 			// use value from select element
 			data: 'q=' + $("#users").val(),
 			dataType: 'json',
 			success: function (responseText) {
 				//console.log(responseText);
-				var var_humidity = parseFloat(responseText.humidity).toFixed(2)
+				var var_humidity = parseFloat(responseText.humedad).toFixed(2)
 				//console.log(var_temperature);
 				// use response from php for data table
 				// guage starting values
