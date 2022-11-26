@@ -1,13 +1,7 @@
 <?php 
 require 'config.php';
 
-echo "Request received";
-console_log("Request received");
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-	echo "Request is POST";
-	console_log("Request is POST");
-
 	$api_key = escape_data($_POST["api_key"]);
         //print_r($_POST);
         //echo "<br>PROJECT_API_KEY: ".PROJECT_API_KEY."<br>";
