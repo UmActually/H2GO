@@ -1,31 +1,38 @@
-// Database URL: mysql://bd670e0228877e:f343723d@us-cdbr-east-06.cleardb.net/heroku_fd12f7f7304c66a?reconnect=true
-// User: bd670e0228877e
-// Password: f343723d
-// Host: us-cdbr-east-06.cleardb.net
+/**
+ * @file H2GO.ino
+ * Karen Gutiérrez Solís         A00835268
+ * Adrian Eduardo Treviño Peña   A01198211
+ * Leonardo Corona Garza         A00832792
+ * Diego Esparza Hurtado         A01652327
+ * Ximena Moctezuma Armendariz   A01722050
+ */
 
 #include <ESP8266WiFi.h>
-#include <WiFiClientSecure.h>
-#include <Fetch.h>
+#include <ESP8266WebServer.h>
 #include <DHT.h>
 
 DHT dht(D3, DHT11);
+
 
 // WIFI credentials
 const char *ssid = "Tec-IoT";
 const char *password = "spotless.magnetic.bridge";
 
-// definir endpoint
-const char *host = "iot-h2go.herokuapp.com";
-const char *uri = "/db-endpoint.php";
-const char *apiKey = "sinpuntos.magnetico.puente";
-
 unsigned long lastMillis = 0;
-long interval = 60000;
+long interval = 120000;
 
+ESP8266WebServer server(80);
+
+/**
+ * @brief Inicializa el sensor, el monitor serial,
+ * el módulo de WiFi, y el servidor web.
+ */
 void setup() {
+  pinMode(D4, OUTPUT);
+  digitalWrite(D4, LOW);
   Serial.begin(115200);
   dht.begin();
-  
+
   WiFi.mode(WIFI_OFF);
   delay(1000);
   WiFi.mode(WIFI_STA);
@@ -34,87 +41,68 @@ void setup() {
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
   }
+
+  Serial.println(WiFi.localIP());
+  server.on("/", handleRequest);
+  server.begin();
 }
 
+/**
+ * @brief Revisar constantemente web requests.
+ */
 void loop() {
-  if (WiFi.status() == WL_CONNECTED) {
-    if(millis() - lastMillis > interval) {
-        //Send an HTTP POST request every interval seconds
-        Serial.println("upload_temperature()");
-        upload_temperature();
-        lastMillis = millis();
-  }
-  } else {
-    Serial.println("WiFi desconectado");
-  }
-
-  delay(1000);  
+  server.handleClient();
 }
 
+/**
+ * @brief Lee la temperatura del sensor DHT11 y
+ * regresarla como string.
+ */
+String getTemperature() {
+  float tempFloat = dht.readTemperature();
 
-void upload_temperature() {
-  float t = dht.readTemperature();
-  float h = dht.readHumidity();
-
-  if (isnan(h) || isnan(t)) {
+  if (isnan(tempFloat)) {
     Serial.println(F("No se pudo leer temperatura"));
-    return;
+    return String();
   }
 
-  String humidity = String(h, 2);
-  String temperature = String(t, 2);
+  return String(tempFloat);
+}
 
-  Serial.println("Temperatura: " + temperature);
-  Serial.println("Humedad: " + humidity);
+/**
+ * @brief Recibe una request HTTP con parámetros.
+ * 
+ * Se espera que la request se elabore como en el siguiente
+ * ejemplo: http://10.22.245.88/?temperature=true&boiler=true
+ * Cuando el parámetro 'temperature' es true, se responde
+ * la request con la temperatura en grados celsius. Cuando
+ * el parámetro 'boiler' es true, se cambiará el estado
+ * actual del boiler (representado por la luz LED).
+ */
+void handleRequest() {
+  String json = "{";
 
-  String method = "POST ";
-  method += uri;
-  method += " HTTP/1.1";
+  bool getTemp = server.arg(0) == "true";
+  bool toggleBoiler = server.arg(1) == "true";
 
-  String body = "api_key=";
-  body += apiKey;
-  body += "&temperature=" + temperature;
-  body += "&humidity=" + humidity;
-
-  WiFiClientSecure httpsClient;
-  httpsClient.setFingerprint("2A EE AF BB 00 2B 58 11 72 9E 1E 98 C8 8C C7 82 52 5A 37 E6");
-  httpsClient.setTimeout(15000);
-  delay(1000);
-
-  int tries = 0;
-  while (!httpsClient.connect(host, 443)) {
-    delay(100);
-    Serial.print(".");
-    if (++tries == 30) {
-      Serial.println("");
-      Serial.println("No se pudo conectar al servidor");
-      return;
+  if (getTemp) {
+    json += "\"temperature\": " + getTemperature();
+    if (toggleBoiler) {
+      json += ", ";
     }
   }
 
-  Serial.println("");
-  Serial.println("Conectado al servidor");
-
-  httpsClient.println(method.c_str());
-  httpsClient.print("Host: "); httpsClient.println(host);
-  httpsClient.println("User-Agent: BuildFailureDetectorESP8266");
-  httpsClient.println("Content-Type: application/x-www-form-urlencoded");
-  httpsClient.print("Content-Length: "); httpsClient.println(body.length());
-  httpsClient.println();
-  httpsClient.println(body.c_str());
-  httpsClient.println("Connection: keep-alive");
-
-  Serial.println("Se envió request");
-  while (httpsClient.connected()) {
-    String line = httpsClient.readStringUntil('\n');
-    if (line == "\r") {
-      Serial.println("Se recibieron headers");
-      break;
+  if (toggleBoiler) {
+    if (digitalRead(D4) == HIGH) {
+      digitalWrite(D4, LOW);
+      json += "\"boiler\": false";
+    } else {
+      digitalWrite(D4, HIGH);
+      json += "\"boiler\": true";
     }
   }
-  
-  while(httpsClient.available()){        
-    String line = httpsClient.readStringUntil('\n');  //Read Line by Line
-    Serial.println(line); //Print response
-  }
+
+  json += "}";
+
+  server.send(200, "application/json", json.c_str());
 }
