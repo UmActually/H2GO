@@ -27,7 +27,7 @@ export default function Home() {
 			alert("error: usuario o contraseña incorrecta")
 		}
 		else if (!data.esAdmin) {
-			router.push(`/Users/${data.id}/Users`);
+			router.push(`/Users/${data.id}/User`);
 		}
 		else {
 			router.push(`/Admin/${data.id}/Admin`)

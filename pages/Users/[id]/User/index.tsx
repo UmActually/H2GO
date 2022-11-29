@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
+import { useRouter } from 'next/router'
 
 type User = {
 	id: number,
@@ -22,10 +23,14 @@ export const getServerSideProps: GetServerSideProps<{ user: User }> = async (con
 
 
 function Users(props: InferGetServerSidePropsType<typeof getServerSideProps>) {
+	const router = useRouter();
+	const handleSubmit: () => void = () => {
+		router.push(`/Users/${props.user.id}/User/bTimer`);
+	}
 	return (
 		<div className='bg-blue-300 w-screen h-screen flex flex-col justify-start space-y-44 py-5 items-center '>
 			<h1 className='text-3xl'>hello {props.user.nombre}</h1>
-			<button className='h-40 bg-white flex justify-center items-center w-52 text-2xl rounded-md' onClick={() => alert("boiler prendido")}>
+			<button className='h-40 bg-white flex justify-center items-center w-52 text-2xl rounded-md' onClick={() => handleSubmit()}>
 				prender boiler
 			</button>
 
