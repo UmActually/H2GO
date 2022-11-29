@@ -6,7 +6,7 @@ export const getServerSideProps: GetServerSideProps<any> = async (context: any) 
 	const requests = await axios.post("http://localhost:3000/api/GetEstimateTime") // nimodo toco ponerlo hardcodeado
 	return {
 		props: {
-			requests: request
+			requests: requests.data
 		}, // will be passed to the page component as props
 	}
 }

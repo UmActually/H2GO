@@ -26,7 +26,7 @@ export default async function handler(
 				console.log(requests)
 				res.status(200).json(requests);
 			}
-			, 20000
+			, 5000
 		)
 
 
