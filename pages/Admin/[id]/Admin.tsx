@@ -43,9 +43,9 @@ function Admin(props: InferGetServerSidePropsType<typeof getServerSideProps>) {
 			</h1>
 			<div className="w-screen p-5 h-full flex-wrap flex justify-start space-x-5 spacey-10 items-start">
 
-				<div className='bg-white py-5 px-2 rounded-md w-auto h-auto '>
-					{
-						props.registros.map((registro: Registro) => (
+				{
+					props.registros.map((registro: Registro) => (
+						<div className='bg-white py-5 px-2 rounded-md w-auto h-auto '>
 							<div>
 								<h1 className='text-xl  font-bold mb-4'>{registro.tiempo.toString()}</h1>
 								<ul className='space-y-2'>
@@ -76,9 +76,9 @@ function Admin(props: InferGetServerSidePropsType<typeof getServerSideProps>) {
 								</ul>
 							</div>
 
-						))
-					}
-				</div>
+						</div>
+					))
+				}
 			</div>
 		</div >
 	)
