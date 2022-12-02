@@ -13,13 +13,9 @@
 
 DHT dht(D3, DHT11);
 
-
 // WIFI credentials
 const char *ssid = "Tec-IoT";
 const char *password = "spotless.magnetic.bridge";
-
-unsigned long lastMillis = 0;
-long interval = 120000;
 
 ESP8266WebServer server(80);
 
@@ -39,8 +35,12 @@ void setup() {
   WiFi.begin(ssid, password);
 
   while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
     delay(1000);
   }
+
+  Serial.println("");
+  Serial.println("Conectado");
 
   Serial.println(WiFi.localIP());
   server.on("/", handleRequest);
@@ -80,6 +80,8 @@ String getTemperature() {
  * actual del boiler (representado por la luz LED).
  */
 void handleRequest() {
+  Serial.println("Se recibió request");
+
   String json = "{";
 
   bool getTemp = server.arg(0) == "true";
@@ -104,5 +106,6 @@ void handleRequest() {
 
   json += "}";
 
+  Serial.println(json);
   server.send(200, "application/json", json.c_str());
 }
